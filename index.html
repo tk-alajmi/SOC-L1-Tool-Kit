@@ -1028,26 +1028,26 @@ function renderQuestions(type) {
     const savedVal = vmap[q.id] || '';
 
     if (q.type === 'text') {
-      input = `<input type="text" id="qi-${q.id}" placeholder="${q.ph||''}" value="${savedVal.replace(/"/g,'&quot;')}" oninput="fv('${q.id}',this.value)" ${isSkipped?'disabled':''} />`;
+      input = `<input type="text" id="qi-${type}-${q.id}" placeholder="${q.ph||''}" value="${savedVal.replace(/"/g,'&quot;')}" oninput="fv('${q.id}',this.value)" ${isSkipped?'disabled':''} />`;
     } else if (q.type === 'textarea') {
-      input = `<textarea id="qi-${q.id}" placeholder="${q.ph||''}" oninput="fv('${q.id}',this.value)" ${isSkipped?'disabled':''}>${savedVal}</textarea>`;
+      input = `<textarea id="qi-${type}-${q.id}" placeholder="${q.ph||''}" oninput="fv('${q.id}',this.value)" ${isSkipped?'disabled':''}>${savedVal}</textarea>`;
     } else if (q.type === 'select') {
       const opts = q.opts.slice(1).map(o => `<option value="${o}" ${savedVal===o?'selected':''}>${o}</option>`).join('');
-      input = `<select id="qi-${q.id}" onchange="fv('${q.id}',this.value)" ${isSkipped?'disabled':''}><option value="">${q.opts[0]}</option>${opts}</select>`;
+      input = `<select id="qi-${type}-${q.id}" onchange="fv('${q.id}',this.value)" ${isSkipped?'disabled':''}><option value="">${q.opts[0]}</option>${opts}</select>`;
     } else if (q.type === 'sev') {
       const sevVal = savedVal || '7';
-      input = `<div style="display:flex;align-items:center;gap:10px"><input type="range" id="qi-${q.id}" min="1" max="10" value="${sevVal}" step="1" style="flex:1;accent-color:var(--accent)" oninput="document.getElementById('sv-${q.id}').textContent=this.value;fv('${q.id}',this.value)"/><span id="sv-${q.id}" style="font-size:14px;font-weight:700;min-width:18px;color:var(--text)">${sevVal}</span></div>`;
+      input = `<div style="display:flex;align-items:center;gap:10px"><input type="range" id="qi-${type}-${q.id}" min="1" max="10" value="${sevVal}" step="1" style="flex:1;accent-color:var(--accent)" oninput="document.getElementById('sv-${type}-${q.id}').textContent=this.value;fv('${q.id}',this.value)"/><span id="sv-${type}-${q.id}" style="font-size:14px;font-weight:700;min-width:18px;color:var(--text)">${sevVal}</span></div>`;
     }
 
-    const skipMsg = isSkipped ? '<div class="q-skip-msg" id="qmsg-'+q.id+'">Skipped — this field will be omitted from the note.</div>' : '<div class="q-skip-msg" id="qmsg-'+q.id+'" style="display:none"></div>';
+    const skipMsg = isSkipped ? '<div class="q-skip-msg" id="qmsg-'+type+'-'+q.id+'">Skipped — this field will be omitted from the note.</div>' : '<div class="q-skip-msg" id="qmsg-'+type+'-'+q.id+'" style="display:none"></div>';
 
-    return `<div class="q-block${isSkipped?' skipped':''}" id="qblock-${q.id}">
+    return `<div class="q-block${isSkipped?' skipped':''}" id="qblock-${type}-${q.id}">
       <div class="q-header">
         <div class="q-num">${i+1}</div>
         <div style="flex:1"><div class="q-label">${q.label}</div>${q.sub?`<div class="q-sublabel">${q.sub}</div>`:''}</div>
-        ${q.type!=='sev'?`<button class="skip-btn${isSkipped?' skipped-active':''}" id="skipbtn-${q.id}" onclick="toggleSkip('${q.id}')">${isSkipped?'Unskip':'Skip'}</button>`:''}
+        ${q.type!=='sev'?`<button class="skip-btn${isSkipped?' skipped-active':''}" id="skipbtn-${type}-${q.id}" onclick="toggleSkip('${type}','${q.id}')">${isSkipped?'Unskip':'Skip'}</button>`:''}
       </div>
-      <div class="q-body" id="qbody-${q.id}">${input}${skipMsg}</div>
+      <div class="q-body" id="qbody-${type}-${q.id}">${input}${skipMsg}</div>
     </div>`;
   }).join('');
 }
@@ -1057,16 +1057,16 @@ function fv(key, val) {
   buildNote();
 }
 
-function toggleSkip(id) {
+function toggleSkip(type, id) {
   const sk = getSkipped();
   const fvals = getFieldVals();
   sk[id] = !sk[id];
   const isNowSkipped = sk[id];
 
-  const block = document.getElementById('qblock-' + id);
-  const btn = document.getElementById('skipbtn-' + id);
-  const msg = document.getElementById('qmsg-' + id);
-  const input = document.getElementById('qi-' + id);
+  const block = document.getElementById('qblock-' + type + '-' + id);
+  const btn = document.getElementById('skipbtn-' + type + '-' + id);
+  const msg = document.getElementById('qmsg-' + type + '-' + id);
+  const input = document.getElementById('qi-' + type + '-' + id);
 
   block.classList.toggle('skipped', isNowSkipped);
   btn.classList.toggle('skipped-active', isNowSkipped);
